@@ -21,6 +21,16 @@ public class CartDaoImpl implements CartDao {
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   @Override
+  public void deleteCartByUserId(Integer userId) {
+    String sql = "DELETE FROM cart WHERE user_id = :userId";
+
+    Map<String, Object> map = new HashMap<>();
+    map.put("userId", userId);
+
+    namedParameterJdbcTemplate.update(sql, map);
+  }
+
+  @Override
   public void deleteCartProduct(Integer userId, Integer productId) {
     String sql = "DELETE FROM cart" +
         " WHERE user_id = :userId AND product_id = :productId";

@@ -16,4 +16,6 @@ public interface CartDao {
   void updateCartProductQuantity (Integer userId,AddItemToCartRequest addItemToCartRequest);
 
   void deleteCartProduct(Integer userId, Integer productId);
+
+  void deleteCartByUserId(Integer userId);
 }
