@@ -1,6 +1,6 @@
-package com.arthurtien.backend.config;
+package com.arthurtien.backend.secuirty;
 
-import com.arthurtien.backend.dao.impl.UserDaoImpl;
+import com.arthurtien.backend.dao.impl.SysUserDaoImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,8 +24,10 @@ public class JwtAthFilter extends OncePerRequestFilter {
 
     private Logger log = Logger.getLogger(JwtAthFilter.class.getName());
 
-    private final UserDaoImpl userDao;
+    private final SysUserDaoImpl userDao;
     private final JwtUtils jwtUtils;
+
+    private final UserDetialsServiceImpl userDetialsService;
 
     @Override
     protected void doFilterInternal(
@@ -34,22 +36,30 @@ public class JwtAthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        log.info("doFilterInternal");
-
+        // 取得Authorization標頭欄位的值
         final String authHeader = request.getHeader(AUTHORIZATION);
         final String userEmail;
         final String jwtToken;
 
+        // 如果Authorization標頭欄位的值不存在或不是以"Bearer "字串開頭
+        // ，則直接繼續下一個Filter處理
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-
             filterChain.doFilter(request, response);
             return;
         }
-        jwtToken = authHeader.substring(7);
-        userEmail = jwtUtils.extractUsername(jwtToken);
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDao.findUserByEmail(userEmail);
 
+        // 從Authorization標頭欄位的值中取出JWT Token
+        jwtToken = authHeader.substring(7);
+        // 從JWT Token中解析出使用者的Email
+        userEmail = jwtUtils.extractUsername(jwtToken);
+
+        // 如果使用者Email存在且當前的安全上下文中沒有驗證過的身份驗證，則進行身份驗證
+        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+//            UserDetails userDetails = userDao.findUserByEmail(userEmail);
+
+            UserDetails userDetails = userDetialsService.loadUserByUsername(userEmail);
+
+            // 驗證JWT Token是否合法，如果合法則建立一個身份驗證物件，並存入當前的安全上下文中
             if (jwtUtils.isTokenValid(jwtToken, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

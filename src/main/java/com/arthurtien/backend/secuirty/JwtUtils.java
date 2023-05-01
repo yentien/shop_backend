@@ -1,6 +1,5 @@
-package com.arthurtien.backend.config;
+package com.arthurtien.backend.secuirty;
 
-import com.arthurtien.backend.controller.UserController;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
