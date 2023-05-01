@@ -2,21 +2,19 @@ package com.arthurtien.backend.dao;
 
 import com.arthurtien.backend.dto.UserModifyRequest;
 import com.arthurtien.backend.dto.UserRegisterRequest;
-import com.arthurtien.backend.model.User;
+import com.arthurtien.backend.model.SysUser;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public interface UserDao {
+public interface SysUserDao {
 
-    User getUserByEmail(String email);
+    SysUser getUserByEmail(String email);
 
     // 新增帳號
     Integer createUser(UserRegisterRequest userRegisterRequest);
 
     // 查詢帳號 - By Id
-    User getUserById(Integer userId);
+    SysUser getUserById(Integer userId);
 
     // 修改user
     void modifyUser(Integer userId, UserModifyRequest userModifyRequest);
-
-//    UserDetails findUserByEmail(String email);
 }
