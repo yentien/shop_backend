@@ -4,25 +4,22 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
-public class User {
+public class SysUser {
 
     private Integer userId;
     private String email;
-
     @JsonIgnore
     private String password;
-
-    private Date createdDate;
-    private Date lastModifiedDate;
-
     private String name;
-    private String role;
-
     private String gender;
     private String cellphone;
     private String address;
+    private Date createdDate;
+    private Date lastModifiedDate;
 
-//    private String jwt;
+    private List<SysRole> role;
+
 }

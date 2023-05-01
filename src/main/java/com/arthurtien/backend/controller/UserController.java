@@ -1,11 +1,11 @@
 package com.arthurtien.backend.controller;
 
-import com.arthurtien.backend.config.JwtUtils;
+import com.arthurtien.backend.model.SysUser;
+import com.arthurtien.backend.secuirty.JwtUtils;
 import com.arthurtien.backend.dto.UserLoginRequest;
 import com.arthurtien.backend.dto.UserModifyRequest;
 import com.arthurtien.backend.dto.UserRegisterRequest;
-import com.arthurtien.backend.model.User;
-import com.arthurtien.backend.service.UserService;
+import com.arthurtien.backend.service.SysUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class UserController {
 
   private Logger log = Logger.getLogger(UserController.class.getName());
 
-  private final UserService userService;
+  private final SysUserService sysUserService;
   private final JwtUtils jwtUtils;
   private final AuthenticationManager authenticationManager;
 
@@ -41,7 +40,7 @@ public class UserController {
   public ResponseEntity<?> register(@RequestBody @Valid UserRegisterRequest userRegisterRequest) {
     String password = userRegisterRequest.getPassword();
     // 檢查email是否已經存在
-    if (userService.getUserByEmail(userRegisterRequest.getEmail()) != null) {
+    if (sysUserService.getUserByEmail(userRegisterRequest.getEmail()) != null) {
       // 409
       return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
     }
@@ -49,10 +48,10 @@ public class UserController {
 
     try {
       // 新增帳號
-      Integer userId = userService.register(userRegisterRequest);
+      Integer userId = sysUserService.register(userRegisterRequest);
 
       // 查詢新增的帳號
-      User user = userService.getUserById(userId);
+      SysUser sysUser = sysUserService.getUserById(userId);
 
       // security 帳密驗證並獲取jwtToken
       Authentication authentication = authenticationManager.authenticate(
@@ -64,7 +63,7 @@ public class UserController {
 
       Map<String, Object> response = new HashMap<>();
       response.put("jwt", jwtUtils.generateToken(userDetails));
-      response.put("user", user);
+      response.put("user", sysUser);
 
       return ResponseEntity.status(HttpStatus.OK).body(response);
     } catch (Exception e) {
@@ -85,18 +84,18 @@ public class UserController {
 
       if (userDetails != null) {
 
-        User user = userService.getUserByEmail(userLoginRequest.getEmail());
+        SysUser sysUser = sysUserService.getUserByEmail(userLoginRequest.getEmail());
 
         Map<String, Object> response = new HashMap<>();
         response.put("jwt", jwtUtils.generateToken(userDetails));
-        response.put("user", user);
+        response.put("user", sysUser);
 
         return ResponseEntity.ok(response);
       } else {
         return ResponseEntity.status(400).body("找不到此用戶資訊");
       }
     } catch (BadCredentialsException e) {
-      return ResponseEntity.status(401).body("錯誤的帳號或密碼");
+      return ResponseEntity.status(401).body("驗證失敗");
     }
   }
 
@@ -107,16 +106,16 @@ public class UserController {
       @RequestBody UserModifyRequest userModifyRequest) {
 
     // 檢查是否有此user
-    User user = userService.getUserById(userId);
-    if (user == null) {
+    SysUser sysUser = sysUserService.getUserById(userId);
+    if (sysUser == null) {
       return ResponseEntity.status(404).body("找不到此用戶");
     }
 
     // 修改user
-    userService.modifyUser(userId, userModifyRequest);
+    sysUserService.modifyUser(userId, userModifyRequest);
     // 修改完的user資訊
-    User modifiedUser = userService.getUserById(userId);
+    SysUser modifiedSysUser = sysUserService.getUserById(userId);
 
-    return ResponseEntity.status(200).body(modifiedUser);
+    return ResponseEntity.status(200).body(modifiedSysUser);
   }
 }

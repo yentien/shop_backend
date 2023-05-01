@@ -1,65 +1,56 @@
 package com.arthurtien.backend.service.impl;
 
-import com.arthurtien.backend.dao.UserDao;
+import com.arthurtien.backend.dao.SysUserDao;
 import com.arthurtien.backend.dto.UserLoginRequest;
 import com.arthurtien.backend.dto.UserModifyRequest;
 import com.arthurtien.backend.dto.UserRegisterRequest;
-import com.arthurtien.backend.exceptions.InvalidPasswordException;
-import com.arthurtien.backend.exceptions.UserNotFoundException;
-import com.arthurtien.backend.model.User;
-import com.arthurtien.backend.service.UserService;
+import com.arthurtien.backend.model.SysUser;
+import com.arthurtien.backend.service.SysUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 @Component
-public class UserServiceImpl implements UserService {
+public class SysUserServiceImpl implements SysUserService {
 
-    private final static Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(SysUserServiceImpl.class);
 
     @Autowired
-    private UserDao userDao;
+    private SysUserDao sysUserDao;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public void modifyUser(Integer userId, UserModifyRequest userModifyRequest) {
-        userDao.modifyUser(userId, userModifyRequest);
+        sysUserDao.modifyUser(userId, userModifyRequest);
     }
 
     @Override
-    public User getUserByEmail(String email) {
-        return userDao.getUserByEmail(email);
+    public SysUser getUserByEmail(String email) {
+        return sysUserDao.getUserByEmail(email);
     }
 
     @Override
-    public User login(UserLoginRequest userLoginRequest) {
-        User user = userDao.getUserByEmail(userLoginRequest.getEmail());
+    public SysUser login(UserLoginRequest userLoginRequest) {
+        SysUser sysUser = sysUserDao.getUserByEmail(userLoginRequest.getEmail());
 
-        if (user == null) {
+        if (sysUser == null) {
             log.warn("無此帳號或 {} 密碼不正確", userLoginRequest.getEmail());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        if(passwordEncoder.matches(userLoginRequest.getPassword(),user.getPassword())){
-            return user;
+        if(passwordEncoder.matches(userLoginRequest.getPassword(), sysUser.getPassword())){
+            return sysUser;
         } else {
             log.warn("無此帳號或 {} 密碼不正確", userLoginRequest.getEmail());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-//        return null;
     }
-
-
 
     @Override
     public Integer register(UserRegisterRequest userRegisterRequest) {
@@ -67,12 +58,12 @@ public class UserServiceImpl implements UserService {
         String encodedPassword = passwordEncoder.encode(userRegisterRequest.getPassword());
         userRegisterRequest.setPassword(encodedPassword);
 
-        Integer userId = userDao.createUser(userRegisterRequest);
+        Integer userId = sysUserDao.createUser(userRegisterRequest);
         return userId;
     }
 
     @Override
-    public User getUserById(Integer userId) {
-        return userDao.getUserById(userId);
+    public SysUser getUserById(Integer userId) {
+        return sysUserDao.getUserById(userId);
     }
 }

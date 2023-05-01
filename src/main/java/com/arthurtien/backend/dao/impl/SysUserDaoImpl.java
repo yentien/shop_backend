@@ -1,31 +1,28 @@
 package com.arthurtien.backend.dao.impl;
 
-import com.arthurtien.backend.controller.UserController;
-import com.arthurtien.backend.dao.UserDao;
+import com.arthurtien.backend.dao.SysUserDao;
 import com.arthurtien.backend.dto.UserModifyRequest;
 import com.arthurtien.backend.dto.UserRegisterRequest;
-import com.arthurtien.backend.model.User;
+import com.arthurtien.backend.model.SysUser;
 import com.arthurtien.backend.rowmapper.UserRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @Repository
 @Component
-public class UserDaoImpl implements UserDao {
-    private Logger log = Logger.getLogger(UserController.class.getName());
+public class SysUserDaoImpl implements SysUserDao {
+    private Logger log = Logger.getLogger(SysUserDaoImpl.class.getName());
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -49,47 +46,20 @@ public class UserDaoImpl implements UserDao {
         namedParameterJdbcTemplate.update(sql, map);
     }
 
-    public UserDetails findUserByEmail(String email) {
-        log.info("Run findUserByEmail");
-        String sql = "SELECT user_id, email, password, created_date," +
-            " last_modified_date, name, role, cellphone, address, gender" +
-            " FROM `user`" +
-            " WHERE email = :email";
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("email",email);
-
-        List<User> userList = namedParameterJdbcTemplate.query(sql, map, new UserRowMapper());
-
-        if (userList.size() > 0) {
-//            log.info(userList.get(0).toString());
-            log.info(userList.get(0).getEmail() + "  "+ userList.get(0).getPassword()  + "  " +
-                userList.get(0).getRole());
-            return new org.springframework.security.core.userdetails.User(
-                userList.get(0).getEmail(),
-                userList.get(0).getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority(userList.get(0).getRole()))
-            );
-        } else {
-            log.info("找不到email");
-            throw new UsernameNotFoundException("User with email: " +email +" not found !");
-        }
-    }
-
     @Override
-    public User getUserByEmail(String email) {
+    public SysUser getUserByEmail(String email) {
         String sql = "SELECT user_id, email, password, created_date," +
-                " last_modified_date, name, role, cellphone, address, gender" +
+                " last_modified_date, name, cellphone, address, gender" +
                 " FROM `user`" +
                 " WHERE email = :email";
 
         Map<String, Object> map = new HashMap<>();
         map.put("email",email);
 
-        List<User> userList = namedParameterJdbcTemplate.query(sql, map, new UserRowMapper());
+        List<SysUser> sysUserList = namedParameterJdbcTemplate.query(sql, map, new UserRowMapper());
 
-        if (userList.size() > 0) {
-            return userList.get(0);
+        if (sysUserList.size() > 0) {
+            return sysUserList.get(0);
         } else {
             return null;
         }
@@ -99,18 +69,14 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Integer createUser(UserRegisterRequest userRegisterRequest) {
         String sql = "INSERT INTO `user`(email, password, created_date," +
-                " last_modified_date, name, role)" +
+                " last_modified_date, name, status)" +
                 " VALUES (:email, :password, :createdDate," +
-                " :lastModifiedDate, :name, :role)";
+                " :lastModifiedDate, :name, :role, :status)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("email", userRegisterRequest.getEmail());
         map.put("name", userRegisterRequest.getUsername());
         map.put("password", userRegisterRequest.getPassword());
-
-        // 權限 - 先都設定為normal
-        String role = "USER";
-        map.put("role", role);
 
         // 開通 - 先都設定為enable
         String status = "enable";
@@ -133,24 +99,19 @@ public class UserDaoImpl implements UserDao {
 
 
     @Override
-    public User getUserById(Integer userId) {
-//        String sql = "SELECT user_id, email, password, created_date," +
-//                " last_modified_date, name, role" +
-//                " FROM `user`" +
-//                " WHERE user_id = :userId";
-
+    public SysUser getUserById(Integer userId) {
         String sql = "SELECT user_id, email, password, created_date," +
-            " last_modified_date, name, role, status, gender," +
+            " last_modified_date, name, status, gender," +
             " cellphone, address " +
             "FROM `user` WHERE user_id = :userId";
 
         Map<String, Object> map = new HashMap<>();
         map.put("userId", userId);
 
-        List<User> userList = namedParameterJdbcTemplate.query(sql, map, new UserRowMapper());
+        List<SysUser> sysUserList = namedParameterJdbcTemplate.query(sql, map, new UserRowMapper());
 
-        if (userList.size() < 0) return null;
+        if (sysUserList.size() == 0) return null;
 
-        return userList.get(0);
+        return sysUserList.get(0);
     }
 }
