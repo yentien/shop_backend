@@ -1,6 +1,5 @@
 package com.arthurtien.backend.secuirty;
 
-import com.arthurtien.backend.dao.impl.SysUserDaoImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,10 +27,11 @@ public class SecurityConfig {
 
   private final CorsConfig corsConfig;
   private final JwtAthFilter jwtAuthFilter;
-  private final UserDetialsServiceImpl userDetailsService;
+  private final UserDetailsServiceImpl userDetailsService;
+  private final ExceptionHandling exceptionHandling;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws ExceptionHandling, Exception {
 
     http
         .csrf(csrf -> csrf.disable())
@@ -47,6 +47,8 @@ public class SecurityConfig {
         .and()
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .exceptionHandling().authenticationEntryPoint(exceptionHandling)
+        .accessDeniedHandler(exceptionHandling)
         ;
 
     return http.build();
@@ -62,19 +64,9 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws ExceptionHandling, Exception {
       return config.getAuthenticationManager();
   }
-
-//  @Bean
-//  public UserDetailsService userDetailsService() {
-//    return new UserDetailsService() {
-//      @Override
-//      public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-//        return userDao.findUserByEmail(email);
-//      }
-//    };
-//  }
 
   @Bean
   public PasswordEncoder passwordEncoder() {
