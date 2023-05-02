@@ -1,9 +1,10 @@
-package com.arthurtien.backend.config;
+package com.arthurtien.backend.secuirty;
 
-import com.arthurtien.backend.controller.UserController;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,8 @@ public class JwtUtils {
 
     private Logger log = Logger.getLogger(JwtUtils.class.getName());
 
-    private String jwtSigningKey = "secret";
+    @Value("${jwt.signing.key}")
+    private String jwtSigningKey;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -57,14 +59,13 @@ public class JwtUtils {
     }
 
     private String createToken(Map<String, Object> claims, UserDetails userDetails) {
-//        log.info((new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(30))).toString());
         return Jwts.builder().setClaims(claims)
-                .setSubject(userDetails.getUsername())
-                .claim("authorities", userDetails.getAuthorities())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
-//                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60)))
-                .signWith(SignatureAlgorithm.HS256, jwtSigningKey).compact();
+            .setSubject(userDetails.getUsername())
+            .claim("authorities", userDetails.getAuthorities())
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+//            .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
+            .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60)))
+            .signWith(SignatureAlgorithm.HS256, jwtSigningKey).compact();
     }
 
     public Boolean isTokenValid(String token, UserDetails userDetails) {

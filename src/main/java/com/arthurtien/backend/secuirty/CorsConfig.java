@@ -1,4 +1,4 @@
-package com.arthurtien.backend.config;
+package com.arthurtien.backend.secuirty;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

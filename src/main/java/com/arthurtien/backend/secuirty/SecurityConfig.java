@@ -1,6 +1,5 @@
-package com.arthurtien.backend.config;
+package com.arthurtien.backend.secuirty;
 
-import com.arthurtien.backend.dao.impl.UserDaoImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,16 +10,12 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Configuration
@@ -32,50 +27,45 @@ public class SecurityConfig {
 
   private final CorsConfig corsConfig;
   private final JwtAthFilter jwtAuthFilter;
-  private final UserDaoImpl userDao;
+  private final UserDetailsServiceImpl userDetailsService;
+  private final ExceptionHandling exceptionHandling;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws ExceptionHandling, Exception {
 
     http
         .csrf(csrf -> csrf.disable())
         .addFilterBefore(corsConfig.corsFilter(), ChannelProcessingFilter.class)
         .authorizeHttpRequests( auth -> auth
-                .requestMatchers("/users/register","/users/login","/products/**").permitAll()
-                .anyRequest().authenticated()
+            .requestMatchers("/users/register","/users/login","/products/**").permitAll()
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .requestMatchers("/users/{userId}/**").hasAnyRole("ADMIN","USER")
+            .anyRequest().authenticated()
         )
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .exceptionHandling().authenticationEntryPoint(exceptionHandling)
+        .accessDeniedHandler(exceptionHandling)
         ;
 
     return http.build();
   }
 
-  // 叫spring去用我自訂義的userDetailService
+  // 設定自訂義的userDetailService
   @Bean
   public AuthenticationProvider authenticationProvider() {
     final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-    authenticationProvider.setUserDetailsService(userDetailsService());
+    authenticationProvider.setUserDetailsService(userDetailsService);
     authenticationProvider.setPasswordEncoder(passwordEncoder());
     return authenticationProvider;
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws ExceptionHandling, Exception {
       return config.getAuthenticationManager();
-  }
-
-  @Bean
-  public UserDetailsService userDetailsService() {
-    return new UserDetailsService() {
-      @Override
-      public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userDao.findUserByEmail(email);
-      }
-    };
   }
 
   @Bean

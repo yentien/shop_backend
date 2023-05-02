@@ -3,11 +3,10 @@ package com.arthurtien.backend.controller;
 import com.arthurtien.backend.dto.AddItemToCartRequest;
 import com.arthurtien.backend.model.Cart;
 import com.arthurtien.backend.model.CartProduct;
-import com.arthurtien.backend.model.User;
+import com.arthurtien.backend.model.SysUser;
 import com.arthurtien.backend.service.CartService;
-import com.arthurtien.backend.service.UserService;
+import com.arthurtien.backend.service.SysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +19,8 @@ public class CartController {
 
   @Autowired
   private CartService cartService;
-  @Autowired
-  private UserService userService;
+//  @Autowired
+//  private SysUserService sysUserService;
 
   @DeleteMapping("/users/{userId}/cart")
   public ResponseEntity<?> deleteCartProduct(
@@ -29,12 +28,12 @@ public class CartController {
       @RequestBody Cart cart
       ) {
     // 檢查userId是否存在
-    User user = userService.getUserById(userId);
-    if (user == null) {
-      return ResponseEntity.status(400).body("user not found");
-    }
-
-    log.info(cart.toString());
+//    SysUser sysUser = sysUserService.getUserById(userId);
+//    if (sysUser == null) {
+//      return ResponseEntity.status(400).body("user not found");
+//    }
+//
+//    log.info(cart.toString());
 
     // 檢查商品是否已存在購物車
     Boolean isExistCartProduct = cartService.isExistCartbyUserIdAndProductId(userId, cart.getProductId());
@@ -57,10 +56,10 @@ public class CartController {
       @RequestBody AddItemToCartRequest addItemToCartRequest
   ) {
     // 檢查userId是否存在
-    User user = userService.getUserById(userId);
-    if (user == null) {
-      return ResponseEntity.status(400).body("user not found");
-    }
+//    SysUser sysUser = sysUserService.getUserById(userId);
+//    if (sysUser == null) {
+//      return ResponseEntity.status(400).body("user not found");
+//    }
 
     // 檢查商品是否已存在購物車
     Boolean isExistCartProduct = cartService.isExistCartbyUserIdAndProductId(userId,addItemToCartRequest.getProductId());
@@ -84,10 +83,10 @@ public class CartController {
       ) {
 
     // 檢查userId是否存在
-    User user = userService.getUserById(userId);
-    if (user == null) {
-      return ResponseEntity.status(400).body("user not found");
-    }
+//    SysUser sysUser = sysUserService.getUserById(userId);
+//    if (sysUser == null) {
+//      return ResponseEntity.status(400).body("user not found");
+//    }
 
     // 檢查商品是否已存在購物車
     Boolean isExistCartProduct = cartService.isExistCartbyUserIdAndProductId(userId, addItemToCartRequest.getProductId());
@@ -109,10 +108,10 @@ public class CartController {
   public ResponseEntity<?> getCart(@PathVariable Integer userId) {
 
     // 檢查userId是否存在
-    User user = userService.getUserById(userId);
-    if (user == null) {
-      return ResponseEntity.status(400).body("user not found");
-    }
+//    SysUser sysUser = sysUserService.getUserById(userId);
+//    if (sysUser == null) {
+//      return ResponseEntity.status(400).body("user not found");
+//    }
 
     // 查詢購物車
     List<CartProduct> cartProductList = cartService.getCart(userId);
