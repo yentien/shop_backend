@@ -63,8 +63,8 @@ public class JwtUtils {
             .setSubject(userDetails.getUsername())
             .claim("authorities", userDetails.getAuthorities())
             .setIssuedAt(new Date(System.currentTimeMillis()))
-//            .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
-            .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60)))
+            .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
+//            .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60)))
             .signWith(SignatureAlgorithm.HS256, jwtSigningKey).compact();
     }
 
