@@ -1,14 +1,8 @@
 package com.arthurtien.backend.secuirty;
 
-import com.arthurtien.backend.response.ServerResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,11 +13,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 @Configuration
@@ -36,9 +28,10 @@ public class SecurityConfig {
   private final CorsConfig corsConfig;
   private final JwtAthFilter jwtAuthFilter;
   private final UserDetailsServiceImpl userDetailsService;
+  private final ExceptionHandling exceptionHandling;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws ExceptionHandling, Exception {
 
     http
         .csrf(csrf -> csrf.disable())
@@ -54,18 +47,8 @@ public class SecurityConfig {
         .and()
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-        .exceptionHandling().accessDeniedHandler(new AccessDeniedHandler() {
-          @Override
-          public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-            response.setContentType("application/json;charset=UTF-8");
-            ServerResponse serverResponse = new ServerResponse<>();
-            serverResponse.setCode(2);
-            serverResponse.setMessage("權限不足");
-            ObjectMapper objectMapper = new ObjectMapper();
-            String s = objectMapper.writeValueAsString(serverResponse);
-            response.getWriter().write(s);
-          }
-        })
+        .exceptionHandling().authenticationEntryPoint(exceptionHandling)
+        .accessDeniedHandler(exceptionHandling)
         ;
 
     return http.build();
@@ -81,7 +64,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws ExceptionHandling, Exception {
       return config.getAuthenticationManager();
   }
 

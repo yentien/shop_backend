@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.util.logging.Logger;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -41,6 +40,7 @@ public class JwtAthFilter extends OncePerRequestFilter {
     try {
       // 取得Authorization標頭欄位的值
       final String authHeader = request.getHeader(AUTHORIZATION);
+
       // 如果Authorization標頭欄位的值不存在或不是以"Bearer "字串開頭
       // ，則直接繼續下一個Filter處理
       if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -74,6 +74,7 @@ public class JwtAthFilter extends OncePerRequestFilter {
       serverResponse.setMessage("JWT token 過期");
       ObjectMapper objectMapper = new ObjectMapper();
       String s = objectMapper.writeValueAsString(serverResponse);
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.getWriter().write(s);
     }
   }
