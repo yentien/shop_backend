@@ -14,9 +14,9 @@ public class RoleRowMapper implements RowMapper<SysRole> {
   @Override
   public SysRole mapRow(ResultSet rs, int rowNum) throws SQLException {
     SysRole sysRole = new SysRole();
-    sysRole.setId(rs.getInt("id"));
-    sysRole.setCode(rs.getString("code"));
-    sysRole.setName(rs.getString("name"));
+    sysRole.setId(rs.getInt("role_id"));
+    sysRole.setCode(rs.getString("role_code"));
+    sysRole.setName(rs.getString("role_name"));
     return sysRole;
   }
 }

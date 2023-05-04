@@ -10,7 +10,7 @@ public class Product {
     private Integer productId;
     private String productName;
     private ProductCategory category;
-    private String imgUrl;
+    private String imageUrl;
     private BigDecimal price;
     private Integer stock;
     private String description;

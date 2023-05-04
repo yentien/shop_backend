@@ -26,6 +26,41 @@ public class OrderDaoImpl implements OrderDao {
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   @Override
+  public void deleteOrderItemById(Integer orderId) {
+    String sql = "DELETE FROM order_item" +
+        " WHERE order_id  = :orderId;";
+
+    Map<String, Object> map = new HashMap<>();
+    map.put("orderId", orderId);
+
+    namedParameterJdbcTemplate.update(sql, map);
+  }
+
+  @Override
+  public void deleteOrderById(Integer orderId) {
+    String sql = "DELETE FROM `order`" +
+        " WHERE order_id = :orderId;";
+
+    Map<String, Object> map = new HashMap<>();
+    map.put("orderId", orderId);
+
+    namedParameterJdbcTemplate.update(sql, map);
+  }
+
+  @Override
+  public List<Order> getOrders() {
+    String sql = "SELECT order_id, user_id, total_amount, created_date," +
+        " last_modified_date, sender_name, sender_phone, sender_email," +
+        " recipient_name, recipient_phone, recipient_address, remark," +
+        " ship_method, ship_fee, status" +
+        " FROM `order`";
+
+    List<Order> orderList = namedParameterJdbcTemplate.query(sql, new OrderRowMapper());
+
+    return orderList;
+  }
+
+  @Override
   public List<OrderItem> getOrderItemByOrderId(Integer orderId) {
     String sql = "SELECT o.order_item_id, o.order_id, o.product_id," +
         " o.quantity, o.amount, p.product_name, p.image_url" +
@@ -39,7 +74,7 @@ public class OrderDaoImpl implements OrderDao {
     List<OrderItem> orderItemList =
         namedParameterJdbcTemplate.query(sql, map, new OrderItemRowMapper());
 
-    if (orderItemList.get(0) == null) {
+    if (orderItemList.size() == 0) {
       return null;
     } else {
       return orderItemList;
@@ -60,7 +95,7 @@ public class OrderDaoImpl implements OrderDao {
 
     List<Order> orderList = namedParameterJdbcTemplate.query(sql, map, new OrderRowMapper());
 
-    if (orderList.get(0) == null) {
+    if (orderList.size() == 0) {
       return null;
     } else {
       return orderList;

@@ -27,6 +27,19 @@ public class SysUserDaoImpl implements SysUserDao {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+    // 查詢user(所有)
+    @Override
+    public List<SysUser> getUser() {
+        String sql = "SELECT user_id, email, password, created_date, last_modified_date," +
+            " user.name, user.status, user.gender, user.cellphone, user.address, role_name" +
+            " FROM user" +
+            " LEFT JOIN m_user_roles mur on user.user_id = mur.u_id" +
+            " LEFT JOIN role r on mur.r_id = r.role_id";
+
+        List<SysUser> userList = namedParameterJdbcTemplate.query(sql, new UserRowMapper());
+        return userList;
+    }
+
     // 修改user
     @Override
     public void modifyUser(Integer userId, UserModifyRequest userModifyRequest) {

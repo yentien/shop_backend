@@ -20,6 +20,6 @@ public class SysUser {
     private Date createdDate;
     private Date lastModifiedDate;
 
-    private List<SysRole> role;
-
+    private String roleName;
+//    private List<SysRole> role;
 }

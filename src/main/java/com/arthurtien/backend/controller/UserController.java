@@ -5,6 +5,7 @@ import com.arthurtien.backend.secuirty.JwtUtils;
 import com.arthurtien.backend.dto.UserLoginRequest;
 import com.arthurtien.backend.dto.UserModifyRequest;
 import com.arthurtien.backend.dto.UserRegisterRequest;
+import com.arthurtien.backend.service.SysRoleService;
 import com.arthurtien.backend.service.SysUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +16,12 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -34,6 +34,21 @@ public class UserController {
   private final SysUserService sysUserService;
   private final JwtUtils jwtUtils;
   private final AuthenticationManager authenticationManager;
+  private final SysRoleService sysRoleService;
+
+  // 查詢單一user
+  @GetMapping("/admin/users/{userId}")
+  public ResponseEntity<?> getUserById(@PathVariable Integer userId) {
+    SysUser user = sysUserService.getUserById(userId);
+    return ResponseEntity.status(200).body(user);
+  }
+
+  // 查詢user(所有)
+  @GetMapping("/admin/users")
+  public ResponseEntity<?> getUsers() {
+    List<SysUser> userList = sysUserService.getUser();
+    return ResponseEntity.status(200).body(userList);
+  }
 
   // 新增帳號
   @PostMapping("/users/register")
