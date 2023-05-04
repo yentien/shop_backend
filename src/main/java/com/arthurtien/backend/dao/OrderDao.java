@@ -8,6 +8,9 @@ import com.arthurtien.backend.model.OrderItem;
 import java.util.List;
 
 public interface OrderDao {
+  void deleteOrderItemById(Integer orderId);
+  void deleteOrderById(Integer orderId);
+  List<Order> getOrders();
   Integer createOrder(Integer userId, CreateOrderRequest createOrderRequest);
   void createOrderItem(Integer orderId, OrderItem orderItem);
   List<Order> getOrderByUserId(Integer userId);

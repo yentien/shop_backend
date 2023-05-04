@@ -1,9 +1,11 @@
 package com.arthurtien.backend.service.impl;
 
+import com.arthurtien.backend.dao.SysRoleDao;
 import com.arthurtien.backend.dao.SysUserDao;
 import com.arthurtien.backend.dto.UserLoginRequest;
 import com.arthurtien.backend.dto.UserModifyRequest;
 import com.arthurtien.backend.dto.UserRegisterRequest;
+import com.arthurtien.backend.model.SysRole;
 import com.arthurtien.backend.model.SysUser;
 import com.arthurtien.backend.service.SysUserService;
 import org.slf4j.Logger;
@@ -14,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Component
 public class SysUserServiceImpl implements SysUserService {
 
@@ -23,7 +27,19 @@ public class SysUserServiceImpl implements SysUserService {
     private SysUserDao sysUserDao;
 
     @Autowired
+    private SysRoleDao sysRoleDao;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Override
+    public List<SysUser> getUser() {
+        List<SysUser> userList = sysUserDao.getUser();
+        for (SysUser user : userList) {
+            user.setRoleName(sysRoleDao.getRoleByUserId(user.getUserId()));
+        }
+        return userList;
+    }
 
     @Override
     public void modifyUser(Integer userId, UserModifyRequest userModifyRequest) {
@@ -32,7 +48,10 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Override
     public SysUser getUserByEmail(String email) {
-        return sysUserDao.getUserByEmail(email);
+        SysUser user = sysUserDao.getUserByEmail(email);
+        String roleName = sysRoleDao.getRoleByUserId(user.getUserId());
+        user.setRoleName(roleName);
+        return user;
     }
 
     @Override

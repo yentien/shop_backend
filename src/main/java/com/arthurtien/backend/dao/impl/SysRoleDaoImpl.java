@@ -22,10 +22,23 @@ public class SysRoleDaoImpl implements SysRoleDao {
   private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   @Override
+  public String getRoleByUserId(Integer userId) {
+    String sql = "SELECT r.role_code" +
+        " FROM m_user_roles mur" +
+        " LEFT JOIN role r on mur.r_id = r.role_id" +
+        " WHERE mur.u_id = :userId";
+    Map<String, Object> map = new HashMap<>();
+    map.put("userId",userId);
+
+    String roleName = namedParameterJdbcTemplate.queryForObject(sql, map , String.class);
+    return roleName;
+  }
+
+  @Override
   public List<SysRole> getRoleByUser(Integer userId) {
-    String sql = "SELECT r.id,  r.code, r.name" +
+    String sql = "SELECT r.role_id,  r.role_code, r.role_name" +
         " FROM m_user_roles m" +
-        " LEFT JOIN role r on r.id = m.r_id" +
+        " LEFT JOIN role r on r.role_id = m.r_id" +
         " WHERE u_id = :userId";
 
     Map<String, Object> map = new HashMap<>();

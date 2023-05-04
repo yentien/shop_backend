@@ -7,6 +7,7 @@ import com.arthurtien.backend.service.CartService;
 import com.arthurtien.backend.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +23,27 @@ public class OrderController {
   @Autowired
   private CartService cartService;
 
+  // 刪除訂單
+  @DeleteMapping("/admin/orders/{orderId}")
+  public ResponseEntity<?> deleteOrderById(@PathVariable Integer orderId) {
+    orderService.deleteOrderById(orderId);
+    orderService.deleteOrderItemById(orderId);
+    return ResponseEntity.status(200).body("訂單刪除成功");
+  }
+
+  // 查詢訂單(所有)
+  @GetMapping("/admin/orders")
+  public ResponseEntity<?> getOrders() {
+    List<Order> orderList = orderService.getOrders();
+    return ResponseEntity.status(200).body(orderList);
+  }
+
   // 查詢訂單
   @GetMapping("/users/{userId}/order")
   public ResponseEntity<?> getOrderByUserId(@PathVariable Integer userId) {
     List<Order> orderList = orderService.getOrderByUserId(userId);
 
-    if (orderList.get(0) != null) {
+    if (orderList != null && orderList.size() != 0) {
       return ResponseEntity.status(200).body(orderList);
     }else {
       return ResponseEntity.status(400).body("Empty orderList");

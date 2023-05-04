@@ -5,8 +5,12 @@ import com.arthurtien.backend.dto.UserModifyRequest;
 import com.arthurtien.backend.dto.UserRegisterRequest;
 import com.arthurtien.backend.model.SysUser;
 
+import java.util.List;
+
 
 public interface SysUserService {
+
+    List<SysUser> getUser();
 
     SysUser getUserByEmail(String email);
 

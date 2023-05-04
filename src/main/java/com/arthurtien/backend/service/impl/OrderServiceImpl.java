@@ -18,13 +18,38 @@ public class OrderServiceImpl implements OrderService {
   private OrderDao orderDao;
 
   @Override
-  public List<Order> getOrderByUserId(Integer userId) {
-    List<Order> orderList = orderDao.getOrderByUserId(userId);
+  public void deleteOrderItemById(Integer orderId) {
+    orderDao.deleteOrderItemById(orderId);
+  }
 
+  @Override
+  public void deleteOrderById(Integer orderId) {
+    orderDao.deleteOrderById(orderId);
+  }
+
+  @Override
+  public List<Order> getOrders() {
+    List<Order> orderList = orderDao.getOrders();
     for (Order order:orderList) {
       List<OrderItem> orderItemList = orderDao.getOrderItemByOrderId(order.getOrderId());
       order.setOrderItemList(orderItemList);
     }
+    return orderList;
+  }
+
+  @Override
+  public List<Order> getOrderByUserId(Integer userId) {
+    List<Order> orderList = orderDao.getOrderByUserId(userId);
+
+    if (orderList == null) {
+      return null;
+    }else {
+      for (Order order:orderList) {
+        List<OrderItem> orderItemList = orderDao.getOrderItemByOrderId(order.getOrderId());
+        order.setOrderItemList(orderItemList);
+      }
+    }
+
     return orderList;
   }
 
