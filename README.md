@@ -1,4 +1,4 @@
-# Spring boot 電商網站實作(後端)!
+# Spring boot 電商網站實作(後端)
 ![](https://i.imgur.com/UckzUlK.png)
 
 ## 簡介
