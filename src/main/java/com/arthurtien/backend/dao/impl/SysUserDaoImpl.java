@@ -84,7 +84,7 @@ public class SysUserDaoImpl implements SysUserDao {
         String sql = "INSERT INTO `user`(email, password, created_date," +
                 " last_modified_date, name, status)" +
                 " VALUES (:email, :password, :createdDate," +
-                " :lastModifiedDate, :name, :role, :status)";
+                " :lastModifiedDate, :name, :status)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("email", userRegisterRequest.getEmail());
