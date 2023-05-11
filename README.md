@@ -26,7 +26,7 @@
 
 ### 整體設計
 
-本項目將使用Spring Boot作為後端框架，Vue.js作為前端框架，MySQL作為數據庫，IntelliJ IDEA作為開發工具，Git作為版本控制系統，Talend API Tester作為API測試工具。具體的技術選擇如下：
+本項目將使用Spring Boot作為後端框架，Vue.js作為前端框架，MySQL作為數據庫，IntelliJ IDEA作為開發工具，Git作為版本控制系統，Postman作為API測試工具。具體的技術選擇如下：
 
 - 前端：Vue.js、Vuex、Axios
 - 後端：Spring Boot、Spring Security + JWT、Spring Data JDBC
